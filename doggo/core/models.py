@@ -23,6 +23,9 @@ class DogBreedDetector:
         return Xception_model, model
 
 def path_to_tensor(image):
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+        
     # loads RGB image as PIL.Image.Image type
     img = image.resize((224, 224))
     # convert PIL.Image.Image type to 3D tensor with shape (224, 224, 3)
@@ -58,7 +61,10 @@ def dog_breed_prediction(predicted_vector):
     return dog_names[np.argmax(predicted_vector)].split('/')[1]
     
 def prepare_open_cv_image(image):
-    image = image.convert("RGB").copy()
-    return cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2GRAY)
+    img = image.copy()
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2GRAY)
     
 
