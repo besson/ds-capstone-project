@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 .DS_Store
+
+.venv_doggo/
