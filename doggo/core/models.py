@@ -7,7 +7,8 @@ from keras.preprocessing.image import img_to_array, load_img
 from keras.applications.xception import Xception
 from keras.applications.resnet50 import ResNet50
 from keras.applications import imagenet_utils
-
+from dataclasses import dataclass
+from typing import List
 
 from core import dog_names
 import numpy as np
@@ -69,12 +70,11 @@ class DogBreedPredictor:
         img_input = self.input_model.predict(preprocess_input(path_to_tensor(image)))
         predicted_vector = self.dog_breed_model.predict(img_input)
 
-        return dog_breed_prediction(predicted_vector), dog_breed_predictions(predicted_vector)
+        return dog_breed_predictions(predicted_vector)
 
     def _face_detector(self, image):
         faces = self.human_model.detectMultiScale(prepare_open_cv_image(image))
         return len(faces) > 0
-
 
 def prepare_image(image):
     # if the image mode is not RGB, convert it
@@ -95,11 +95,6 @@ def _format_breed_name(name: str):
 def _format_probability(prob: float):
     return f'{round(100 * prob, 2)}%' 
 
-def dog_breed_prediction(predicted_vector):
-    prediction = dog_names[np.argmax(predicted_vector)]
-    return _format_breed_name(prediction)
-
-
 def dog_breed_predictions(predicted_vector, n=3):
     best_predictions = np.argsort(predicted_vector * -1).flatten()[:n]
     return dict([
@@ -118,4 +113,34 @@ def prepare_open_cv_image(image):
 
     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2GRAY)
     
+@dataclass
+class DogBreed:
 
+    name: str
+    summary: str
+    images: List[str]
+    probability: float
+
+    def __lt__(self, other):
+        return self.probability < other.probability
+
+
+class DogBreedResultsBuilder:
+
+    def __init__(self, predictions, wiki_client):
+        self.predictions = predictions
+        self.wiki_client = wiki_client
+        
+    def build(self):
+        result = []
+
+        for breed, prob in self.predictions.items():
+            data = self.wiki_client.search(breed)
+            result.append(
+                        DogBreed(name=breed,
+                                images=data['images'],
+                                summary=data['summary'],
+                                probability=prob)
+            )
+        
+        return sorted(result, reverse=True)

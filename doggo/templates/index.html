@@ -65,32 +65,34 @@
                     It looks like you are similar to ...
                 </div>
                 {% if data.get('success') %}
+                    {% set prediction = data.get('result')[0] %}
                     <div class="row">
-                        {{ data.get('breed') }}
+                        {{ prediction.name }}
                     </div>
 
-                    {% if data.get('summary')|length > 0 %}
+                    {% if prediction.summary|length > 0 %}
                         <div class="row">
-                            <p>{{ data.get('summary')|safe }}</p>
+                            <p>{{ prediction.summary|safe }}</p>
                         </div>
                     {% endif %}
 
-                    {% if data.get('images')|length > 0 %}
+                    {% if prediction.images|length > 0 %}
                         <div class="row">
-                            {% for image in data.get('images') %}
+                            {% for image in prediction.images %}
                                 <span><img src="{{ image }}" width="30%" height="30%"/></span>
                             {% endfor %}
                         </div>
                     {% endif %}
 
-                    {% if data.get('breed_probs')|length > 0 %}
                     <div class="row">
                         but you also have chances to be similar to ...
                     </div>
                     <div class="row">
-                        <p>{{ data.get('breed_probs') }}</p>
+                        {% for breed in data.get('result') %}
+                            <span><img src="{{ breed.images[0] }}" width="5%" height="5%"/></span>
+                            <span>{{ breed.name }} : {{ breed.probability }}</span>
+                        {% endfor %}
                     </div>
-                {% endif %}
 
                 {% endif %}
             </div>

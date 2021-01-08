@@ -1,8 +1,8 @@
 from flask import Flask
 from flask import render_template
 
-from core import DogBreedDetector, DogDetector, HumanDetector, WikiClient, DogBreedPredictor
-from core.models import path_to_tensor, dog_breed_prediction, prepare_image, prepare_open_cv_image, dog_breed_predictions
+from core import DogBreedDetector, DogDetector, HumanDetector, WikiClient, DogBreedPredictor, DogBreedResultsBuilder
+from core.models import path_to_tensor, prepare_image, prepare_open_cv_image, dog_breed_predictions
 from keras.applications.xception import preprocess_input
 from PIL import Image
 
@@ -30,15 +30,12 @@ def predict():
             image = Image.open(io.BytesIO(image))
 
             data["predictions"] = predictor.predict(image)
-            data["success"] = True
+            data["success"] = data["predictions"] is not None
 
             if data["predictions"]:
-                breed = data["predictions"][0]
-                data["breed"] = breed
-                data.update(wiki_client.search(breed))
-
-                data['breed_probs'] = data["predictions"][1]
-
+                result_builder = DogBreedResultsBuilder(data['predictions'], wiki_client)
+                data['result'] = result_builder.build()
+                
     return render_template('index.html', data=data)
 
 
