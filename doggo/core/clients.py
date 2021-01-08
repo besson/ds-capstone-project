@@ -16,7 +16,7 @@ class WikiClient:
         logging.info(f'Searching for {query}')
 
         try:
-            page = wiki.page(query, auto_suggest=False, preload='images')
+            page = wiki.page(query, auto_suggest=False)
 
             return {
                 'images': page.images[:num_images],
