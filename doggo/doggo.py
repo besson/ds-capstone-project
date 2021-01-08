@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import render_template
 
-from core import DogBreedDetector, DogDetector, HumanDetector, DogImageClient, WikiClient
+from core import DogBreedDetector, DogDetector, HumanDetector, WikiClient
 from core.models import path_to_tensor, dog_breed_prediction, prepare_image, prepare_open_cv_image
 from keras.applications.xception import preprocess_input
 from PIL import Image
@@ -34,9 +34,8 @@ def predict():
 
             if data["predictions"]:
                 breed = data["predictions"].split('.')[1]
-                data['description'] = wiki_client.fetch_snippet(breed)
-                data['images'] = dog_image_client.fetch_images(breed)
-            
+                data["breed"] = breed
+                data.update(wiki_client.search(breed))
 
     return render_template('index.html', data=data)
 
@@ -70,12 +69,11 @@ def _face_detector(image):
 
 if __name__ == '__main__':
     print(("* Loading Keras model and Flask starting server..."))
-    global dog_model, dog_breed_model, input_model, human_model, dog_image_client, wiki_client
+    global dog_model, dog_breed_model, input_model, human_model, wiki_client
     
     input_model, dog_breed_model = DogBreedDetector().load_models()
     dog_model = DogDetector().load_model()
     human_model = HumanDetector().load_model()
-    dog_image_client = DogImageClient()
     wiki_client = WikiClient()
 
     app.run(host='0.0.0.0', port=3001, debug=True)

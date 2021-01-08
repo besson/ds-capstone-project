@@ -66,12 +66,12 @@
                 </div>
                 {% if data.get('success') %}
                     <div class="row">
-                        {{ data.get('predictions') }}
+                        {{ data.get('breed') }}
                     </div>
 
-                    {% if data.get('description')|length > 0 %}
+                    {% if data.get('summary')|length > 0 %}
                         <div class="row">
-                            <p>{{ data.get('description')|safe }}</p>
+                            <p>{{ data.get('summary')|safe }}</p>
                         </div>
                     {% endif %}
 
