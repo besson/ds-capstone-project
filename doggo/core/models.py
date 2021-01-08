@@ -25,7 +25,7 @@ class DogBreedDetector:
 def path_to_tensor(image):
     if image.mode != "RGB":
         image = image.convert("RGB")
-        
+
     # loads RGB image as PIL.Image.Image type
     img = image.resize((224, 224))
     # convert PIL.Image.Image type to 3D tensor with shape (224, 224, 3)
@@ -44,6 +44,38 @@ class HumanDetector:
         return cv2.CascadeClassifier('core/models/haarcascade_frontalface_alt.xml')
 
 
+class DogBreedPredictor:
+
+    def __init__(self, dog_model, dog_breed_model, input_model, human_model):
+        self.dog_model = dog_model
+        self.dog_breed_model = dog_breed_model
+        self.input_model = input_model
+        self.human_model = human_model
+
+    def predict(self, image):
+        if self._dog_detector(image) or self._face_detector(image):
+            return self._dog_breed_detector(image)
+
+        return None
+    
+    def _dog_detector(self, image):
+        image = prepare_image(image)
+        predicted_vector = self.dog_model.predict(image)
+        prediction = np.argmax(predicted_vector)
+
+        return ((prediction <= 268) & (prediction >= 151))
+
+    def _dog_breed_detector(self, image):
+        img_input = self.input_model.predict(preprocess_input(path_to_tensor(image)))
+        predicted_vector = self.dog_breed_model.predict(img_input)
+
+        return dog_breed_prediction(predicted_vector), dog_breed_predictions(predicted_vector)
+
+    def _face_detector(self, image):
+        faces = self.human_model.detectMultiScale(prepare_open_cv_image(image))
+        return len(faces) > 0
+
+
 def prepare_image(image):
     # if the image mode is not RGB, convert it
     if image.mode != "RGB":
@@ -57,9 +89,28 @@ def prepare_image(image):
 
     return image
 
+def _format_breed_name(name: str):
+    return name.split('.')[1].replace('_', ' ')
+
+def _format_probability(prob: float):
+    return f'{round(100 * prob, 2)}%' 
+
 def dog_breed_prediction(predicted_vector):
-    return dog_names[np.argmax(predicted_vector)].split('/')[1]
+    prediction = dog_names[np.argmax(predicted_vector)]
+    return _format_breed_name(prediction)
+
+
+def dog_breed_predictions(predicted_vector, n=3):
+    best_predictions = np.argsort(predicted_vector * -1).flatten()[:n]
+    return dict([
+                (_format_breed_name(dog_names[idx]),
+                _format_probability(np.take(predicted_vector, [idx][0]))
+                )
+                for idx in best_predictions
+                ]
+            )
     
+
 def prepare_open_cv_image(image):
     img = image.copy()
     if img.mode != "RGB":

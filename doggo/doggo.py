@@ -1,8 +1,8 @@
 from flask import Flask
 from flask import render_template
 
-from core import DogBreedDetector, DogDetector, HumanDetector, WikiClient
-from core.models import path_to_tensor, dog_breed_prediction, prepare_image, prepare_open_cv_image
+from core import DogBreedDetector, DogDetector, HumanDetector, WikiClient, DogBreedPredictor
+from core.models import path_to_tensor, dog_breed_prediction, prepare_image, prepare_open_cv_image, dog_breed_predictions
 from keras.applications.xception import preprocess_input
 from PIL import Image
 
@@ -29,51 +29,28 @@ def predict():
             image = flask.request.files["image"].read()
             image = Image.open(io.BytesIO(image))
 
-            data["predictions"] = _predict(image)
+            data["predictions"] = predictor.predict(image)
             data["success"] = True
 
             if data["predictions"]:
-                breed = data["predictions"].split('.')[1]
+                breed = data["predictions"][0]
                 data["breed"] = breed
                 data.update(wiki_client.search(breed))
+
+                data['breed_probs'] = data["predictions"][1]
 
     return render_template('index.html', data=data)
 
 
-def _predict(image):
-    if _dog_detector(image) or _face_detector(image):
-        return _dog_breed_detector(image)
-
-    return None
-
-
-def _dog_detector(image):
-    image = prepare_image(image)
-    predicted_vector = dog_model.predict(image)
-    prediction = np.argmax(predicted_vector)
-
-    return ((prediction <= 268) & (prediction >= 151))
-    
-    
-def _dog_breed_detector(image):
-    img_input = input_model.predict(preprocess_input(path_to_tensor(image)))
-    predicted_vector = dog_breed_model.predict(img_input)
-
-    return dog_breed_prediction(predicted_vector)
-
-
-def _face_detector(image):
-    faces = human_model.detectMultiScale(prepare_open_cv_image(image))
-    return len(faces) > 0
-
-
 if __name__ == '__main__':
     print(("* Loading Keras model and Flask starting server..."))
-    global dog_model, dog_breed_model, input_model, human_model, wiki_client
+    global  dog_model, dog_breed_model, input_model, human_model, wiki_client, predictor
     
     input_model, dog_breed_model = DogBreedDetector().load_models()
     dog_model = DogDetector().load_model()
     human_model = HumanDetector().load_model()
     wiki_client = WikiClient()
+    predictor = DogBreedPredictor(dog_model, dog_breed_model, input_model, human_model)
+
 
     app.run(host='0.0.0.0', port=3001, debug=True)

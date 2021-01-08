@@ -83,6 +83,15 @@
                         </div>
                     {% endif %}
 
+                    {% if data.get('breed_probs')|length > 0 %}
+                    <div class="row">
+                        but you also have chances to be similar to ...
+                    </div>
+                    <div class="row">
+                        <p>{{ data.get('breed_probs') }}</p>
+                    </div>
+                {% endif %}
+
                 {% endif %}
             </div>
         </div>
