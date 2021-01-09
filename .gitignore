@@ -131,3 +131,5 @@ dmypy.json
 .DS_Store
 
 doggo/venv_doggo/
+
+.idea/
