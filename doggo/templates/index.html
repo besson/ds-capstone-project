@@ -24,6 +24,9 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
+                <a class="nav-link active" href="https://github.com/besson/ds-capstone-project" target="_blank">Project</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link active" href="https://felipebesson.com" target="_blank">by Felipe Besson</a>
               </li>
             </ul>
@@ -32,7 +35,7 @@
     </nav>
 
     <div class="bg-light p-2 rounded-lg m-3">
-        <h1 class="display-4 text-center">Doogo</h1>
+        <h1 class="display-4 text-center">Doggo</h1>
         <p class="lead text-center">Dog Breed detector</p>
         <hr class="my-4">
  
@@ -59,42 +62,63 @@
         <div>
             <div class="container">
                 <div class="row">
-                    <img src="data:image/jpg;base64,{{ data['image']|safe }}" width="10%" height="10%">
-                </div>
-                <div class="row">
-                    It looks like you are similar to ...
-                </div>
-                {% if data.get('success') %}
-                    {% set prediction = data.get('result')[0] %}
-                    <div class="row">
-                        {{ prediction.name }}
+                    <div class="col-4">
+                        <figure class="figure">
+                            <img src="data:image/jpg;base64,{{ data['image']|safe }}" class="figure-img img-fluid rounded" width="296" height="228"/>
+                        </figure>
                     </div>
 
-                    {% if prediction.summary|length > 0 %}
-                        <div class="row">
-                            <p>{{ prediction.summary|safe }}</p>
+                    {% if data.get('success') %}
+                        {% set prediction = data.get('result')[0] %}
+                        <div class="col-8">             
+                                <p>It looks like you are similar to ...</p>
+                                <h3>{{ prediction.name }}</h3>
+
+                                {% if prediction.summary|length > 0 %}
+                                    <p class="lead">{{ prediction.summary|safe }}</p>
+                                {% endif %}
                         </div>
                     {% endif %}
+                </div>
+                
+                <div class="container pt-4">
+                    <div class="row p">
+                        {% if prediction.images|length > 0 %}
+                            <h4> {{ prediction.name }} photos</h4>
+                            <div class="container">
+                                <div class="row">
+                                    <p class="lead">Photos by {{ prediction.image_src }}</p>
+                                    {% for image in prediction.images %}
+                                    <div class="col">
+                                        <figure class="figure">
+                                            <img src="{{ image }}" class="figure-img img-fluid rounded" width="296" height="228"/>
+                                        </figure>
+                                    </div>
+                                    {% endfor %}
+                                </div>        
+                            </div>
+                        {% endif %}
+                    </div>
+                    <hr class="my-4">
+                </div>
 
-                    {% if prediction.images|length > 0 %}
-                        <div class="row">
-                            {% for image in prediction.images %}
-                                <span><img src="{{ image }}" width="30%" height="30%"/></span>
-                            {% endfor %}
+                <div class="container pt-4">
+                    <div class="row">
+                        <h5> You also have chances to be similar to ...</h5>
+                        <div class="container">
+                            <div class="row">
+                                {% for breed in data.get('result') %}
+                                <div class="col">
+                                    <figure class="figure">
+                                        <img src="{{ breed.images[0] }}" class="figure-img img-fluid rounded img-thumbnail" width="50%" height="50%"/>
+                                    </figure>
+                                    <p>{{ breed.name }} : {{ breed.prob_display }}</p>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                    {% endif %}
-
-                    <div class="row">
-                        but you also have chances to be similar to ...
                     </div>
-                    <div class="row">
-                        {% for breed in data.get('result') %}
-                            <span><img src="{{ breed.images[0] }}" width="10%" height="10%"/></span>
-                            <span>{{ breed.name }} : {{ breed.probability }}</span>
-                        {% endfor %}
-                    </div>
-
-                {% endif %}
+                </div>  
             </div>
         </div>
     {% endif %}

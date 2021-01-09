@@ -99,9 +99,9 @@ def dog_breed_predictions(predicted_vector, n=3):
     best_predictions = np.argsort(predicted_vector * -1).flatten()[:n]
     return dict([
                 (_format_breed_name(dog_names[idx]),
-                _format_probability(np.take(predicted_vector, [idx][0]))
+                np.take(predicted_vector, [idx][0])
                 )
-                for idx in best_predictions
+                    for idx in best_predictions
                 ]
             )
     
@@ -119,7 +119,9 @@ class DogBreed:
     name: str
     summary: str
     images: List[str]
+    image_src: str
     probability: float
+    prob_display: float
 
     def __lt__(self, other):
         return self.probability < other.probability
@@ -140,7 +142,9 @@ class DogBreedResultsBuilder:
                         DogBreed(name=breed,
                                 images=data['images'],
                                 summary=data['summary'],
-                                probability=prob)
+                                image_src=data['image_src'],
+                                probability=prob,
+                                prob_display=_format_probability(prob))
             )
         
         return sorted(result, reverse=True)
