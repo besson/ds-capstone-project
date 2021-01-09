@@ -78,47 +78,54 @@
                                     <p class="lead">{{ prediction.summary|safe }}</p>
                                 {% endif %}
                         </div>
+                    {% else %}
+                        <div class="col-8">   
+                            <h3>Dog breed not found</h3>          
+                            <p class="lead">Sorry! This photo doesn't look like a dog or human :p <br> Please try a photo without objects or with a better resolution</p>
+                        </div>
                     {% endif %}
                 </div>
                 
-                <div class="container pt-4">
-                    <div class="row p">
-                        {% if prediction.images|length > 0 %}
-                            <h4> {{ prediction.name }} photos</h4>
+                {% if data.get('success') %}
+                    <div class="container pt-4">
+                        <div class="row p">
+                            {% if prediction.images|length > 0 %}
+                                <h4> {{ prediction.name }} photos</h4>
+                                <div class="container">
+                                    <div class="row">
+                                        <p class="lead">Photos by {{ prediction.image_src }}</p>
+                                        {% for image in prediction.images %}
+                                        <div class="col">
+                                            <figure class="figure">
+                                                <img src="{{ image }}" class="figure-img img-fluid rounded" width="296" height="228"/>
+                                            </figure>
+                                        </div>
+                                        {% endfor %}
+                                    </div>        
+                                </div>
+                            {% endif %}
+                        </div>
+                        <hr class="my-4">
+                    </div>
+               
+                    <div class="container pt-4">
+                        <div class="row">
+                            <h5> You also have chances to be similar to ...</h5>
                             <div class="container">
                                 <div class="row">
-                                    <p class="lead">Photos by {{ prediction.image_src }}</p>
-                                    {% for image in prediction.images %}
+                                    {% for breed in data.get('result') %}
                                     <div class="col">
                                         <figure class="figure">
-                                            <img src="{{ image }}" class="figure-img img-fluid rounded" width="296" height="228"/>
+                                            <img src="{{ breed.images[0] }}" class="figure-img img-fluid rounded img-thumbnail" width="50%" height="50%"/>
                                         </figure>
+                                        <p>{{ breed.name }} : {{ breed.prob_display }}</p>
                                     </div>
                                     {% endfor %}
-                                </div>        
-                            </div>
-                        {% endif %}
-                    </div>
-                    <hr class="my-4">
-                </div>
-
-                <div class="container pt-4">
-                    <div class="row">
-                        <h5> You also have chances to be similar to ...</h5>
-                        <div class="container">
-                            <div class="row">
-                                {% for breed in data.get('result') %}
-                                <div class="col">
-                                    <figure class="figure">
-                                        <img src="{{ breed.images[0] }}" class="figure-img img-fluid rounded img-thumbnail" width="50%" height="50%"/>
-                                    </figure>
-                                    <p>{{ breed.name }} : {{ breed.prob_display }}</p>
                                 </div>
-                                {% endfor %}
                             </div>
                         </div>
-                    </div>
-                </div>  
+                    </div> 
+                {% endif %} 
             </div>
         </div>
     {% endif %}
