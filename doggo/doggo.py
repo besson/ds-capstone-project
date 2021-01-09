@@ -11,6 +11,9 @@ import numpy as np
 import io
 import cv2
 
+import io
+import base64
+
 
 # Based on https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html
 app = Flask(__name__)    
@@ -35,6 +38,12 @@ def predict():
             if data["predictions"]:
                 result_builder = DogBreedResultsBuilder(data['predictions'], wiki_client)
                 data['result'] = result_builder.build()
+
+            img_io = io.BytesIO()
+            image.save(img_io, 'PNG', quality=100)
+            img_io.seek(0)
+
+            data['image'] = base64.b64encode(img_io.getvalue()).decode('ascii')
                 
     return render_template('index.html', data=data)
 
