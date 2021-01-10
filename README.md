@@ -14,8 +14,8 @@ This notebook template was provided by Udacity and extended by me during the pro
 ## Doggo
 Doggo is a Flask web app application to implement the dog-project's models. Based on a photo upload by a user, Doggo runs the following steps:
 
-1. Encode user photo for Dog detector, human face detector and Xception model
-2. If photo is classified as a dog or a human face, it predicts dog breeds
+1. Encode uploaded photo for running dog detector, human face detector and dog breed detector models
+2. If the photo is classified as a dog or a human face, it predicts dog breeds
 3. For the top n predictions, Doggo calls [Wikipedia](http://wikipedia.com) and [dog.ceo](https://dog.ceo) API to find more information about the predicted breeds
 4. Return results to user
 

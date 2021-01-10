@@ -1,3 +1,4 @@
+# Dog breed labels. This array is used to fetch the label of predicted breed. The order (index) of this array cannot be changed.
 dog_names = [
     'n/001.Affenpinscher',
     'n/002.Afghan_hound',
