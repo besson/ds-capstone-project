@@ -1,6 +1,8 @@
 # Udacity's Nanodegree in Data Science: Capstone Project
 
-The Capstone project is divided into 2 main sub-projects:
+The main problems addressed by this project are to classify images of dogs according to their breed using CNN (Convolutional Neural Networks) and implementing a web application to provide online dog breeds detection.
+
+Please find [here](https://besson.medium.com/using-deep-learning-to-identify-the-your-dog-breed-e61f08009247) my Medium blog post with a project overview. The Capstone project is divided into 2 main sub-projects:
 
 ## Dog project 
 In this project, I've implemented a [Convolutional Neural Network (CNN)](https://en.wikipedia.org/wiki/Convolutional_neural_network) using [transfer learning](https://en.wikipedia.org/wiki/Transfer_learning) to detect dog breeds from a photo.
