@@ -1,4 +1,5 @@
 import flask
+import os
 from flask import Flask
 from flask import render_template
 from PIL import Image
@@ -7,7 +8,17 @@ from core import DogBreedDetector, DogDetector, HumanDetector, WikiClient, DogBr
 import io
 import base64
 
-app: Flask = Flask(__name__)
+
+app = Flask(__name__)
+global dog_model, dog_breed_model, input_model, human_model, wiki_client, predictor
+
+input_model, dog_breed_model = DogBreedDetector().load_models()
+dog_model = DogDetector().load_model()
+human_model = HumanDetector().load_model()
+wiki_client = WikiClient()
+predictor = DogBreedPredictor(dog_model, dog_breed_model, input_model, human_model)
+
+
 
 @app.route('/')
 @app.route('/index')
@@ -41,21 +52,3 @@ def predict():
             data['image'] = base64.b64encode(img_io.getvalue()).decode('ascii')
 
     return render_template('index.html', data=data)
-
-
-def run():
-    # Instantiate core components
-    global dog_model, dog_breed_model, input_model, human_model, wiki_client, predictor
-
-    input_model, dog_breed_model = DogBreedDetector().load_models()
-    dog_model = DogDetector().load_model()
-    human_model = HumanDetector().load_model()
-    wiki_client = WikiClient()
-    predictor = DogBreedPredictor(dog_model, dog_breed_model, input_model, human_model)
-
-
-if __name__ == '__main__':
-    print("* Loading Keras model and Flask starting server...")
-    run()
-
-    app.run(host='0.0.0.0', port=3001, debug=True)

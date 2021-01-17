@@ -14,13 +14,16 @@ Doggo is a Flask web app application to run Dog breed detection models. Based on
 5. [Licensing, Authors, and Acknowledgements](#licensing)
 
 ## Instructions <a name="instructions"></a>
-1. Install de dependencies defined in `requirements.txt`
+1. Build docker image:
+   ```
+   docker build -t doggo .
+   ``` 
 2. The app has already trained models for detecting dog, human faces and dog breeds. In case of update, you need to save the new models at `models` folder
 3. Running the app locally: 
     ```
-        python doggo.py
+    docker run -p 5000:5000 doggo
     ```
-4. Go to http://0.0.0.0:3001
+4. Go to http://0.0.0.0:5000
 
 ## File Descriptions <a name="files"></a>
 
